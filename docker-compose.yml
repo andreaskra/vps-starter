@@ -1,0 +1,46 @@
+# VPS starter kit — production compose file.
+# `name:` pins the project name so volume/container names are stable
+# (the dashboard's certbot integration references them).
+name: vps-starter
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: vps-starter-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/sites:/etc/nginx/sites:ro
+      - letsencrypt:/etc/letsencrypt:ro
+      - acme-webroot:/var/www/acme
+    depends_on:
+      - landing-page
+      - leadfinder
+    restart: unless-stopped
+
+  landing-page:
+    build: ./landing-page
+    container_name: vps-starter-landing
+    restart: unless-stopped
+
+  leadfinder:
+    build: ./leadfinder
+    container_name: vps-starter-leadfinder
+    env_file: .env
+    volumes:
+      - ./leadfinder/data:/data
+      # the dashboard writes per-domain nginx configs here (nginx reads them read-only)
+      - ./nginx/sites:/nginx-sites
+      - letsencrypt:/etc/letsencrypt
+      - acme-webroot:/acme-webroot
+      # lets the dashboard run certbot as a sibling container and reload nginx.
+      # Root-equivalent on the host — see README "Security notes".
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  letsencrypt:
+  acme-webroot:

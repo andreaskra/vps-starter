@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% set active = 'domains' %}
+{% block title %}Domains{% endblock %}
+{% block content %}
+<h1>Domains</h1>
+{% if message %}<p class="flash flash--ok">{{ message }}</p>{% endif %}
+{% if error %}<p class="flash flash--error">{{ error }}</p>{% endif %}
+
+<div class="card">
+  <h2>Connect a domain to your landing page</h2>
+  <p class="muted">
+    First, at your domain registrar, create two <b>A records</b> pointing at this server —
+    Name <code>@</code> → <code>{{ ip }}</code> and Name <code>www</code> → <code>{{ ip }}</code>.
+    Then enter the domain below. The kit checks your DNS, fetches a free Let's Encrypt
+    certificate, and switches on https automatically (renewals included).
+  </p>
+  <form method="post" action="/domains" class="row">
+    <input type="text" name="domain" placeholder="yourbusiness.com" required>
+    <button type="submit">Connect</button>
+  </form>
+  <p class="muted small">Connecting takes up to a minute — the page loads when it's done.</p>
+</div>
+
+{% if domains %}
+<table>
+  <tr><th>Domain</th><th>www</th><th>Connected</th><th></th></tr>
+  {% for d in domains %}
+  <tr>
+    <td><a href="https://{{ d['domain'] }}" target="_blank" rel="noopener">{{ d['domain'] }}</a></td>
+    <td>{{ '✓' if d['include_www'] else '—' }}</td>
+    <td class="muted">{{ d['created_at'][:10] }}</td>
+    <td>
+      <form method="post" action="/domains/delete" onsubmit="return confirm('Disconnect {{ d['domain'] }}? The site stops answering on this domain.');">
+        <input type="hidden" name="domain" value="{{ d['domain'] }}">
+        <button type="submit" class="btn--danger">Disconnect</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

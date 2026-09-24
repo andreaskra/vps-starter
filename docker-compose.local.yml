@@ -1,0 +1,12 @@
+# Local-development override (macOS/Windows/Linux with Docker Desktop).
+# Remaps ports that are usually taken locally and forces DRY_RUN so no
+# paid API calls happen. Used by run-local.sh:
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build
+services:
+  nginx:
+    ports: !override
+      - "8090:80"    # dashboard  -> http://localhost:8090
+      - "8091:8080"  # landing    -> http://localhost:8091
+  leadfinder:
+    environment:
+      DRY_RUN: "1"

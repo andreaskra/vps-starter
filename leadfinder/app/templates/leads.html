@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% set active = 'leads' %}
+{% block title %}Leads{% endblock %}
+{% block content %}
+<div class="row row--space">
+  <h1>Leads <span class="muted">({{ leads|length }})</span></h1>
+  <div class="row">
+    <a class="btn btn--ghost" href="/export.csv">Export CSV</a>
+    <form method="post" action="/run">
+      <button type="submit" {% if running or not configured %}disabled{% endif %}>
+        {% if running %}Run in progress…{% else %}Run now{% endif %}
+      </button>
+    </form>
+  </div>
+</div>
+
+{% if not configured %}
+<p class="flash flash--warn">
+  Not configured yet — add your Tavily API key and describe your ideal customer in
+  <a href="/settings">Settings</a>, then come back and hit <b>Run now</b>.
+</p>
+{% endif %}
+
+{% if runs %}
+<details class="runs" {% if running %}open{% endif %}>
+  <summary>Recent runs</summary>
+  <table>
+    <tr><th>Started</th><th>Status</th><th>Queries</th><th>Results</th><th>New leads</th><th>Notes</th></tr>
+    {% for r in runs %}
+    <tr>
+      <td>{{ r['started_at'] }}</td>
+      <td><span class="pill pill--{{ 'ok' if r['status'] == 'ok' else 'warn' }}">{{ r['status'] }}</span></td>
+      <td>{{ r['queries'] }}</td><td>{{ r['found'] }}</td><td>{{ r['new'] }}</td>
+      <td class="muted">{{ r['message'] }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</details>
+{% endif %}
+
+{% if leads %}
+<table class="leads">
+  <tr><th>Score</th><th>Company</th><th>Website</th><th>Why it matched</th><th>Notion</th><th>Added</th></tr>
+  {% for l in leads %}
+  <tr>
+    <td>{% if l['score'] %}<span class="score score--{{ l['score'] }}">{{ l['score'] }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+    <td><b>{{ l['name'] }}</b></td>
+    <td><a href="{{ l['url'] }}" target="_blank" rel="noopener">{{ l['domain'] }}</a></td>
+    <td class="muted">{{ l['reason'] or l['snippet'][:120] }}</td>
+    <td>{% if l['notion_ok'] %}✓{% elif notion_on %}<span class="muted">·</span>{% else %}<span class="muted">off</span>{% endif %}</td>
+    <td class="muted">{{ l['created_at'][:10] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="card">
+  <h2>No leads yet.</h2>
+  <p class="muted">Once configured, the finder runs every night — or press <b>Run now</b> to watch it work.
+  Fresh prospects land here and in your Notion database.</p>
+</div>
+{% endif %}
+{% endblock %}

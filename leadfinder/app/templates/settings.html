@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% set active = 'settings' %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+{% if saved %}<p class="flash flash--ok">Saved.</p>{% endif %}
+
+<form method="post" action="/settings" class="settings">
+  <div class="card">
+    <h2>1 · API keys</h2>
+    <p class="muted">Three services power the lead finder. Keys are stored on this server only.
+    Leave a field empty to keep the currently saved key.</p>
+
+    <label>Tavily API key <span class="muted">— searches the web · free account at <a href="https://tavily.com" target="_blank" rel="noopener">tavily.com</a></span></label>
+    <input type="password" name="tavily_api_key" placeholder="{{ masked['tavily_api_key'] or 'tvly-…' }}" autocomplete="off">
+
+    <label>Anthropic API key <span class="muted">— Claude writes the searches and scores each lead · <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></span></label>
+    <input type="password" name="anthropic_api_key" placeholder="{{ masked['anthropic_api_key'] or 'sk-ant-…' }}" autocomplete="off">
+
+    <label>Notion integration token <span class="muted">— where leads are delivered · create at <a href="https://www.notion.so/my-integrations" target="_blank" rel="noopener">notion.so/my-integrations</a></span></label>
+    <input type="password" name="notion_token" placeholder="{{ masked['notion_token'] or 'ntn_…' }}" autocomplete="off">
+
+    <label>Notion page <span class="muted">— paste the link of a page you've shared with your integration; a “Leads” database is created under it</span></label>
+    <input type="text" name="notion_parent_page" value="{{ values['notion_parent_page'] }}" placeholder="https://www.notion.so/My-Page-1234…">
+  </div>
+
+  <div class="card">
+    <h2>2 · Who are you looking for?</h2>
+    <p class="muted">Describe your ideal customer in plain language — who they are, where they are,
+    what they do. The more specific, the better the leads.</p>
+    <textarea name="icp_description" rows="5"
+      placeholder="Example: independent hair and beauty salons in Austria and southern Germany with 2–10 employees, who still take bookings by phone and have no online booking system.">{{ values['icp_description'] }}</textarea>
+  </div>
+
+  <div class="card">
+    <h2>3 · Schedule &amp; limits</h2>
+    <div class="grid3">
+      <div>
+        <label>Nightly run hour <span class="muted">(0–23, server time/UTC)</span></label>
+        <input type="number" name="run_hour" min="0" max="23" value="{{ values['run_hour'] }}">
+      </div>
+      <div>
+        <label>Searches per run <span class="muted">(1–12)</span></label>
+        <input type="number" name="max_queries" min="1" max="12" value="{{ values['max_queries'] }}">
+      </div>
+      <div>
+        <label>Max new leads per run <span class="muted">(1–50)</span></label>
+        <input type="number" name="max_new_leads" min="1" max="50" value="{{ values['max_new_leads'] }}">
+      </div>
+    </div>
+    <label>Claude model <span class="muted">— the default is a good pick; only change if you know why</span></label>
+    <input type="text" name="model" value="{{ values['model'] }}">
+    <label>Email for certificate notices <span class="muted">(optional — Let's Encrypt warns you before a certificate would expire)</span></label>
+    <input type="email" name="certbot_email" value="{{ values['certbot_email'] }}" placeholder="you@example.com">
+  </div>
+
+  <button type="submit">Save settings</button>
+</form>
+{% endblock %}
