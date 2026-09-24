@@ -12,9 +12,8 @@ This README is the condensed version.
 
 ## Deploy with Claude Code (recommended — no terminal needed)
 
-1. Download the kit — clone this repo, or grab the
-   [zip](https://andreaskra.com/assets/downloads/vps-starter.zip) — and open the
-   folder in [Claude Code](https://claude.com/claude-code).
+1. Get the kit — clone this repo, or on GitHub click **Code → Download ZIP** and
+   unzip it — and open the folder in [Claude Code](https://claude.com/claude-code).
 2. Say: **"Deploy this project to my server at `<your-server-ip>`."**
 3. Claude asks for your server's root password and a dashboard password of
    your choice, then handles everything — SSH access, uploading the project,
@@ -31,8 +30,7 @@ cd vps-starter
 bash setup.sh
 ```
 
-(No git on the server? `apt install -y unzip`, then
-`curl -L -o vps-starter.zip https://andreaskra.com/assets/downloads/vps-starter.zip && unzip vps-starter.zip && cd vps-starter`.)
+(No git on the server? `apt install -y git` first.)
 
 The installer sets up Docker, asks you to choose a dashboard password
 (or takes it non-interactively via `DASHBOARD_PASSWORD=… bash setup.sh`), and
